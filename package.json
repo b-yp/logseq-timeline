@@ -9,7 +9,10 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@logseq/libs": "^0.0.14",
+    "@mui/material": "^5.14.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
