@@ -1,6 +1,7 @@
 import { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import React, { useEffect } from "react";
 import { Chrono, TimelineItem } from "react-chrono";
+import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
@@ -10,6 +11,10 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Button from "@mui/material/Button";
 
 import { formatName, formatTimeLine, useAppVisible } from "./utils";
+
+const Markdown = (i: string) => {
+  return <MarkdownPreview source={i} />;
+};
 
 function App() {
   const visible = useAppVisible();
@@ -103,7 +108,12 @@ function App() {
           </Button>
         </div>
         <div className="container">
-          <Chrono allowDynamicUpdate items={timelineItems} />
+          <Chrono
+            items={timelineItems.map((i) => ({
+              ...i,
+              timelineContent: Markdown(i.timelineContent as string),
+            }))}
+          />
         </div>
       </main>
     );
