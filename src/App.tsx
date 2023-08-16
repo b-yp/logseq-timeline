@@ -1,19 +1,21 @@
 import { PageEntity } from "@logseq/libs/dist/LSPlugin";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
+import { Chrono, TimelineItem } from "react-chrono";
 
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Button from "@mui/material/Button";
 
-import { formatName, useAppVisible } from "./utils";
+import { formatName, formatTimeLine, useAppVisible } from "./utils";
 
 function App() {
-  const innerRef = useRef<HTMLDivElement>(null);
   const visible = useAppVisible();
   const [tags, setTags] = React.useState<PageEntity[]>([]);
   const [tag, setTag] = React.useState(tags[0]?.uuid);
+  const [timelineItems, setTimelineItems] = React.useState<TimelineItem[]>([]);
 
   const getAllTags = async () => {
     // 查询所有以 .timeline_ 开头的 tag
@@ -42,11 +44,9 @@ function App() {
     // `;
     // const blocks = await logseq.DB.datascriptQuery(query);
 
-    const linkedRefs = await logseq.Editor.getPageLinkedReferences(
-      "64db17b7-5a69-475c-ab9b-83e0da033a99"
-    );
-
-    console.log("linkedRefs", linkedRefs);
+    const linkedRefs = await logseq.Editor.getPageLinkedReferences(tag);
+    const items = formatTimeLine(linkedRefs);
+    setTimelineItems(items);
   };
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -72,38 +72,38 @@ function App() {
   }, [tag]);
 
   if (visible) {
-    console.log("tag", tag);
     return (
       <main className="logseq-timeline-main">
-        <div ref={innerRef} className="text-size-2em">
-          Welcome to [[Logseq]] Plugins!
-          <button
+        <div className="tool-bar">
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth>
+              <InputLabel id="select-timeline">Select Timeline</InputLabel>
+              <Select
+                labelId="select-timeline"
+                value={tag}
+                label="Select Timeline"
+                onChange={handleChange}
+              >
+                {!!tags.length &&
+                  tags.map((tag) => (
+                    <MenuItem key={tag.id} value={tag.uuid}>
+                      {formatName(tag.name)}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Button
+            variant="contained"
             onClick={() => {
               window.logseq.hideMainUI();
             }}
           >
-            关闭按钮
-          </button>
-          <div className="tool-bar">
-            <Box sx={{ minWidth: 120 }}>
-              <FormControl fullWidth>
-                <InputLabel id="select-timeline">Select Timeline</InputLabel>
-                <Select
-                  labelId="select-timeline"
-                  value={tag}
-                  label="Select Timeline"
-                  onChange={handleChange}
-                >
-                  {!!tags.length &&
-                    tags.map((tag) => (
-                      <MenuItem key={tag.id} value={tag.uuid}>
-                        {formatName(tag.name)}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </Box>
-          </div>
+            关闭
+          </Button>
+        </div>
+        <div className="container">
+          <Chrono allowDynamicUpdate items={timelineItems} />
         </div>
       </main>
     );

@@ -11,3 +11,9 @@ export interface RichText {
     link?: string | null
   }
 }
+
+export interface Property {
+  time: string
+  image?: string
+  content?: string
+}
